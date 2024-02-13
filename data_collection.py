@@ -1,6 +1,5 @@
 import time
 import pandas as pd
-import requests  # Required for the Huobi API call
 from datetime import datetime
 from BTC.coinbase_btc import get_bitcoin_prices_coinbase
 from BTC.kraken_btc import get_bitcoin_prices_kraken
@@ -8,27 +7,13 @@ from BTC.gemini_btc import get_bitcoin_prices_gemini
 from BTC.analyze import calculate_and_save_deltas
 import sys  # Import sys for exiting the script
 
-def get_bitcoin_prices_huobi():
-    url = 'https://api.huobi.pro/market/depth'
-    params = {'symbol': 'btcusdt', 'type': 'step0'}
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
-        bid_price = data['tick']['bids'][0][0]  # First bid price
-        ask_price = data['tick']['asks'][0][0]  # First ask price
-        return bid_price, ask_price
-    except requests.RequestException as e:
-        print(f"Error fetching Huobi data: {e}")
-        return None, None
-
 def collect_data(duration_minutes):
     end_time = time.time() + (duration_minutes * 60)
     data = []
 
     while time.time() < end_time:
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        # Handles errors that arise 
+        # Handles errors hat arise 
         try:
             coinbase_data = get_bitcoin_prices_coinbase()
             if coinbase_data is None or None in coinbase_data:
@@ -39,9 +24,6 @@ def collect_data(duration_minutes):
             gemini_data = get_bitcoin_prices_gemini()
             if gemini_data is None or None in gemini_data:
                 raise ValueError("Gemini API failed to deliver data.")
-            huobi_data = get_bitcoin_prices_huobi()
-            if huobi_data is None or None in huobi_data:
-                raise ValueError("Huobi API failed to deliver data.")
         except ValueError as e:
             print(e)
             sys.exit("Script terminated due to API failure.")
@@ -54,9 +36,7 @@ def collect_data(duration_minutes):
             'Kraken Bid': kraken_data[0],
             'Kraken Ask': kraken_data[1],
             'Gemini Bid': gemini_data[0],
-            'Gemini Ask': gemini_data[1],
-            'Huobi Bid': huobi_data[0],
-            'Huobi Ask': huobi_data[1]
+            'Gemini Ask': gemini_data[1]
         })
 
         time.sleep(1)  # Wait for 1 second before the next API call
@@ -79,5 +59,7 @@ def main(duration_minutes):
     print(f"Data collected and saved to {filename}")
 
 if __name__ == "__main__":
-    duration_minutes = 30  # Set the duration for which you want to collect data
+    duration_minutes = 360  # Set the duration for which you want to collect data
     main(duration_minutes)
+
+#calculate_and_save_deltas()

@@ -1,7 +1,7 @@
 import time
-from coinbase_btc import get_bitcoin_prices_coinbase
-from kraken_btc import get_bitcoin_prices_kraken
-from gemini_btc import get_bitcoin_prices_gemini
+from BTC.coinbase_btc import get_bitcoin_prices_coinbase
+from BTC.kraken_btc import get_bitcoin_prices_kraken
+from BTC.gemini_btc import get_bitcoin_prices_gemini
 
 start_time = time.time()
 
